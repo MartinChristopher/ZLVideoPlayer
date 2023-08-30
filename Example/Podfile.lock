@@ -1,0 +1,16 @@
+PODS:
+  - ZLVideoPlayer (0.0.1)
+
+DEPENDENCIES:
+  - ZLVideoPlayer (from `../`)
+
+EXTERNAL SOURCES:
+  ZLVideoPlayer:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ZLVideoPlayer: 8211569b7301b811fb8a1c69ef06829759095994
+
+PODFILE CHECKSUM: 059f05fabf3068845a4189d9b15d34f4b1a33eea
+
+COCOAPODS: 1.12.1
