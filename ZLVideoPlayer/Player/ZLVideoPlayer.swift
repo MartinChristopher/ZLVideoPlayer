@@ -6,25 +6,25 @@ import UIKit
 import Foundation
 import AVFoundation
 
-protocol ZLVideoPlayerDelegate: NSObjectProtocol {
-    //播放进度回调
-    func player(_ player: ZLVideoPlayer?, progress: Double)
-    //即将 seek
-    func playerWillSeek(toPosition player: ZLVideoPlayer?, curtPos: Double, toPos: Double)
-    //seek 完成
-    func playerSeekComplete(_ player: ZLVideoPlayer?, prePos: Double, curtPos: Double)
+@objc protocol ZLVideoPlayerDelegate: NSObjectProtocol {
+    //播放进度
+    @objc optional func player(_ player: ZLVideoPlayer?, progress: Double)
+    //即将seek
+    @objc optional func playerWillSeek(_ player: ZLVideoPlayer?, curPos: Double, toPos: Double)
+    //seek完成
+    @objc optional func playerSeekComplete(_ player: ZLVideoPlayer?, prePos: Double, curPos: Double)
     //播放完成
-    func playerComplete(_ player: ZLVideoPlayer?)
+    @objc optional func playerComplete(_ player: ZLVideoPlayer?)
     //正在缓冲
-    func playerBuffering(_ player: ZLVideoPlayer?)
+    @objc optional func playerBuffering(_ player: ZLVideoPlayer?)
+    //缓冲百分比
+    @objc optional func playerBufferPercent(_ player: ZLVideoPlayer?, bufferPercent: Double)
     //缓冲结束
-    func playerBufferFinish(_ player: ZLVideoPlayer?)
+    @objc optional func playerBufferFinish(_ player: ZLVideoPlayer?)
     //播放错误
-    func player(_ player: ZLVideoPlayer?, error: Error?)
-    //流媒体加载状态
-    func player(_ player: ZLVideoPlayer?, load status: AVPlayerItem.Status)
-    //流媒体缓冲百分比
-    func player(_ player: ZLVideoPlayer?, bufferPercent: Double)
+    @objc optional func playerError(_ player: ZLVideoPlayer?, error: Error?)
+    //加载状态
+    @objc optional func playerStatus(_ player: ZLVideoPlayer?, load status: AVPlayerItem.Status)
     
 }
 
@@ -107,23 +107,21 @@ class ZLVideoPlayer: NSObject {
     
     private func setupPlayer() {
         //app进入后台
-        NotificationCenter.default.addObserver(self, selector: #selector(self.appResignActive(_:)), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appResignActive(_:)), name: UIApplication.willResignActiveNotification, object: nil)
         //app进入前台
-        NotificationCenter.default.addObserver(self, selector: #selector(self.appBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         // 监听耳机插入和拔掉通知
-        NotificationCenter.default.addObserver(self, selector: #selector(self.audioRouteChangeListenerCallback(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(audioRouteChangeListenerCallback(_:)), name: AVAudioSession.routeChangeNotification, object: nil)
         //中断处理(播放过程中有打电话等系统事件)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.handleInterruption(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleInterruption(_:)), name: AVAudioSession.interruptionNotification, object: nil)
+        
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback /*允许后台*/, options: .mixWithOthers /*混合播放，不独占*/)
-        } catch {
-            
-        }
+        } catch {}
+        
         do {
             try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            
-        }
+        } catch {}
     }
     
 }
@@ -181,30 +179,30 @@ extension ZLVideoPlayer {
             default:
                 break
             }
-            if let delegate = delegate {
-                delegate.player(self, load: playerItem.status)
+            if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerStatus(_:load:))) {
+                delegate.playerStatus?(self, load: playerItem.status)
             }
         } else if keyPath == "loadedTimeRanges" {
             let ranges = playerItem.loadedTimeRanges
             let range = ranges.first?.timeRangeValue //本次缓冲时间范围
             totalBuffer = range!.start.seconds + range!.duration.seconds //缓冲总长度
-            if let delegate = delegate {
-                 delegate.player(self, bufferPercent: totalBuffer! / playerItem.asset.duration.seconds)
+            if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerBufferPercent(_:bufferPercent:))) {
+                delegate.playerBufferPercent?(self, bufferPercent: totalBuffer! / playerItem.asset.duration.seconds)
             }
         } else if keyPath == "playbackBufferEmpty" {
-            if let delegate = delegate {
-                delegate.playerBuffering(self)
+            if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerBuffering(_:))) {
+                delegate.playerBuffering?(self)
             }
         } else if keyPath == "playbackLikelyToKeepUp" {
-            if let delegate = delegate {
-                 delegate.playerBufferFinish(self)
+            if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerBufferFinish(_:))) {
+                 delegate.playerBufferFinish?(self)
             }
         }
     }
     // 进度监控
     func addProgressObserver() {
         //这里设置每秒执行一次
-        let playerItem: AVPlayerItem? = self.playerItem
+        let playerItem: AVPlayerItem? = playerItem
         
         let interval = CMTime(value: 1, timescale: 5)
         
@@ -216,8 +214,8 @@ extension ZLVideoPlayer {
             self.totalTime = CMTimeGetSeconds(playerItem?.duration ?? CMTime.zero)
             self.curtPosition = self.currentPlayTime! / self.totalTime!
             
-            if let delegate = self.delegate {
-                delegate.player(self, progress: self.curtPosition ?? 0)
+            if let delegate = self.delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.player(_:progress:))) {
+                delegate.player?(self, progress: self.curtPosition ?? 0)
             }
         })
     }
@@ -230,9 +228,9 @@ extension ZLVideoPlayer {
     // 播放完成、错误通知
     func addNotification() {
         //给 AVPlayerItem 添加播放完成通知
-        NotificationCenter.default.addObserver(self, selector: #selector(self.playbackFinished(_:)), name: .AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackFinished(_:)), name: .AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
         //给 AVPlayerItem 添加播放错误通知
-        NotificationCenter.default.addObserver(self, selector: #selector(self.playbackFail(_:)), name: .AVPlayerItemFailedToPlayToEndTime, object: player?.currentItem)
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackFail(_:)), name: .AVPlayerItemFailedToPlayToEndTime, object: player?.currentItem)
     }
     
     func removeNotification() {
@@ -243,8 +241,8 @@ extension ZLVideoPlayer {
         curtPosition = 0
         totalTime = 0
         currentPlayTime = totalTime
-        if let delegate = self.delegate {
-            delegate.playerComplete(self)
+        if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerComplete(_:))) {
+            delegate.playerComplete?(self)
         }
     }
     
@@ -252,8 +250,8 @@ extension ZLVideoPlayer {
         curtPosition = 0
         totalTime = 0
         currentPlayTime = totalTime
-        if let delegate = self.delegate {
-            delegate.player(self, error: player?.error)
+        if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerError(_:error:))) {
+            delegate.playerError?(self, error: player?.error)
         }
     }
     
@@ -367,11 +365,11 @@ extension ZLVideoPlayer {
         
         let time: CMTime = CMTimeMakeWithSeconds(seekToPosition, preferredTimescale: 600)
         //是否正在播放，YES ，则在seek完成之后恢复播放
-        let isPlay = self.isPlay()
+        let isPlay = isPlay()
         pause()
         
-        if let delegate = delegate {
-            delegate.playerWillSeek(toPosition: self, curtPos: curtPosition ?? 0, toPos: seekToPosition)
+        if let delegate = delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerWillSeek(_:curPos:toPos:))) {
+            delegate.playerWillSeek?(self, curPos: curtPosition ?? 0, toPos: seekToPosition)
         }
         
         player?.seek(to: time, completionHandler: { [weak self] finish in
@@ -381,8 +379,8 @@ extension ZLVideoPlayer {
             
             if finish {
                 self.currentPlayTime = CMTimeGetSeconds(time)
-                if let delegate = self.delegate {
-                    delegate.playerSeekComplete(self, prePos: self.curtPosition ?? 0, curtPos: seekToPosition)
+                if let delegate = self.delegate, delegate.responds(to: #selector(ZLVideoPlayerDelegate.playerSeekComplete(_:prePos:curPos:))) {
+                    delegate.playerSeekComplete?(self, prePos: self.curtPosition ?? 0, curPos: seekToPosition)
                 }
                 if isPlay {
                     self.play()
