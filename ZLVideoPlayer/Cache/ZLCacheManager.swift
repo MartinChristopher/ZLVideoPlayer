@@ -135,7 +135,7 @@ class ZLCacheManager {
 
 extension ZLCacheManager {
     // 文件目录
-    static var directory: String = FileManager.cachesPath.appendingPathComponent("Videos")
+    static var directory: String = FileManager.cachePath.appendingPathComponent("Videos")
     // 文件名
     static func fileName(url: URL) -> String {
         return url.absoluteString.md5String

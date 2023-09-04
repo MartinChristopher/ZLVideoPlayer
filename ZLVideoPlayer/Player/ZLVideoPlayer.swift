@@ -47,10 +47,13 @@ class ZLVideoPlayer: NSObject {
     
     weak var delegate: ZLVideoPlayerDelegate?
     
-    init(url: String?) {
+    override init() {
         super.init()
-        mediaUrl = url
         setupPlayer()
+    }
+    
+    func playWith(_ url: String?) {
+        mediaUrl = url
         preparePlayer()
     }
     

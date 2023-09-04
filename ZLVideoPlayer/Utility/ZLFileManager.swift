@@ -6,24 +6,24 @@ import Foundation
 
 extension FileManager {
     // Documents路径
-    static var documentsPath: String {
+    static var documentPath: String {
         return NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
     }
     // UsersDocuments目录
     static var usersDocumentsPath: String? {
-        let usersDocumentsPath = FileManager.documentsPath.appendingPathComponent("Users")
+        let usersDocumentsPath = FileManager.documentPath.appendingPathComponent("Users")
         guard createPath(path: usersDocumentsPath) else {
             return nil
         }
         return usersDocumentsPath
     }
     // Caches路径
-    static var cachesPath: String {
+    static var cachePath: String {
         return NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
     }
     // UsersCache目录
     static var usersCachePath: String? {
-        let usersCachePath = FileManager.cachesPath.appendingPathComponent("Users")
+        let usersCachePath = FileManager.cachePath.appendingPathComponent("Users")
         guard createPath(path: usersCachePath) else {
             return nil
         }
