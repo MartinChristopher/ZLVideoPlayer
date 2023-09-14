@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		181D43EC2AB2E80700683C0D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181D43EB2AB2E80700683C0D /* ViewController.swift */; };
 		1868ABF72A9360F4001ED8EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1868ABF62A9360F4001ED8EE /* AppDelegate.swift */; };
 		1868AC002A9360F5001ED8EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1868ABFF2A9360F5001ED8EE /* Assets.xcassets */; };
 		1868AC032A9360F5001ED8EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1868AC012A9360F5001ED8EE /* LaunchScreen.storyboard */; };
@@ -14,7 +15,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1868ABF32A9360F4001ED8EE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Example.app; path = "/Users/apple/Desktop/LiveKitExample/Example/build/Debug-iphoneos/Example.app"; sourceTree = "<absolute>"; };
+		181D43EA2AB2E7F300683C0D /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		181D43EB2AB2E80700683C0D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		1868ABF62A9360F4001ED8EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1868ABFF2A9360F5001ED8EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1868AC022A9360F5001ED8EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -43,6 +45,7 @@
 				1868ABF52A9360F4001ED8EE /* Example */,
 				5606C10830893F89EBF6AFF6 /* Pods */,
 				FE99EFF0BE81F68B739C80A1 /* Frameworks */,
+				181D43EA2AB2E7F300683C0D /* Example.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -50,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				1868ABF62A9360F4001ED8EE /* AppDelegate.swift */,
+				181D43EB2AB2E80700683C0D /* ViewController.swift */,
 				1868ABFF2A9360F5001ED8EE /* Assets.xcassets */,
 				1868AC2A2A936C1E001ED8EE /* Example.entitlements */,
 				1868AC042A9360F5001ED8EE /* Info.plist */,
@@ -64,7 +68,6 @@
 				B892D6F2B9D182BA5EC806CC /* Pods-Example.debug.xcconfig */,
 				1BC64B99EF17AFFCF94E183D /* Pods-Example.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -95,7 +98,7 @@
 			);
 			name = Example;
 			productName = Example;
-			productReference = 1868ABF32A9360F4001ED8EE /* Example.app */;
+			productReference = 181D43EA2AB2E7F300683C0D /* Example.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -190,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				181D43EC2AB2E80700683C0D /* ViewController.swift in Sources */,
 				1868ABF72A9360F4001ED8EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
